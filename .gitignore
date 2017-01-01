@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.docx
+*.pdf
+*.zip
+*.png
+*.tmp

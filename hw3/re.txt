@@ -1,0 +1,6 @@
+ There are some modifications and reminders in your homework 3
+ (1) We change the dataset, please download the lattest version of HW03 from e3 again.
+ (2) 'beta'=0 should be modified as 'beta^(-1)'=0.01.
+ (3) We suggest to use [theta_0, ,theta_1] = [1, 0.5] and [eta_0, eta_1] = [1, 1]
+ (4) It takes time to run Gaussian process classification
+ (5) We suggest to use C=1000, tolerance = 0.001

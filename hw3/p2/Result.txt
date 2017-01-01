@@ -1,0 +1,10 @@
+--Linear
+Train:
+ErrorCount: 	26
+Error%: 	21.67%
+Correct%: 	78.33%
+
+Test:
+ErrorCount: 	5
+Error%: 	16.67%
+Correct%: 	83.33%
