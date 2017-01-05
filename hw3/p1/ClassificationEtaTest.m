@@ -5,6 +5,10 @@ TrainSize = 2000;
 TestSize = 720;
 Dimension = 8;
 
+Etas = [0.1 1 10 20 30 50 100];
+TestP = zeros(size(Etas));
+TrainP = zeros(size(Etas));
+
 %% Read data
 Data = csvread('../Data/hiv_data.csv', 1, 0);
 
@@ -18,9 +22,12 @@ TestTarget = TestSet(:, Dimension+1);
 TestSet = TestSet(:, 1:Dimension);
 
 %% Build Cov
+for ETA = 1 : numel(Etas)
+disp(sprintf('Eta: %.1f', Etas(ETA)));
+    
 Alpha = 0.01;
 Theta = [1; 0.1];
-Eta = 50*ones(Dimension, 1);
+Eta = Etas(ETA)*ones(Dimension, 1);
 
 Cov = zeros(TrainSize);
 for i = 1 : TrainSize
@@ -65,7 +72,7 @@ TestPred(TestPred>=0.5) = 1;
 TestPred(TestPred<0.5) = 0;
 Error = numel(find(TestPred ~= TestTarget));
 disp(sprintf('TestSet: %.2f%%', (1-Error/TestSize)*100));
-
+TestP(ETA) = (1-Error/TestSize)*100;
 %% Prediction - training set
 ts = TrainSize;
 TrainPred = zeros(ts, 1);
@@ -86,3 +93,5 @@ TrainPred(TrainPred>=0.5) = 1;
 TrainPred(TrainPred<0.5) = 0;
 Error = numel(find(TrainPred ~= TrainTarget(1:ts)));
 disp(sprintf('TrainSet: %.2f%%', (1-Error/TrainSize)*100));
+TrainP(ETA) = (1-Error/TrainSize)*100;
+end

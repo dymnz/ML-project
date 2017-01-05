@@ -1,10 +1,18 @@
-% One-VS-Rest 3-class SVM w/ Linear Kernel
+% One-VS-Rest 3-class SVM w/ Polynomial Kernel
 clear; close all;
+
+% OPTIONS
+DrawSupportVector = true;
+DrawTestingData = ~DrawSupportVector;
+
 load Iris.mat;
 
 Class = 3;
 Dimension = 2;
 KernelDimension = 2;
+
+Sigma = 0.1;
+Gamma = 1/(2*Sigma);
 
 C = 1000;
 Tol = 0.001;
@@ -30,11 +38,10 @@ for i = 2 : Class
 end
 
 %% Learning
-
 % Build K
 for m = 1 : TrainSize
     for n = m : TrainSize
-        K(m, n) = TrainSet(m, :) * TrainSet(n, :)';
+        K(m, n) = exp(-Gamma* (norm(TrainSet(m, :) - TrainSet(n, :)).^2) );
         K(n, m) = K(m, n);
     end
 end    
@@ -44,7 +51,6 @@ for i = 1 : Class
     Target = -ones(1, TrainSize);
     Target(TrainTarget==i) = 1;
     [alphas(i, :),biases(i)] = smo(K, Target, C, Tol);
-    Ws(i, :) = alphas(i, :).*Target*TrainSet;   
 end
 
 %% Find support vector
@@ -53,10 +59,20 @@ for i = 1 : Class
 end
 
 %% Train set testing
+Phi = [TrainSet(:, 1).^2 ...
+        sqrt(2)*TrainSet(:, 1).*TrainSet(:, 2)...
+        TrainSet(:, 2).^2];
 Preds = zeros(TrainSize, Class);
 for i = 1 : TrainSize
     for r = 1 : Class
-        Preds(i, r) = Ws(r, :) * TrainSet(i, :)' + biases(r);
+        Target = -ones(1, TrainSize);
+        Target(TrainTarget==r) = 1;
+        for m = 1 : TrainSize
+            Preds(i, r) = Preds(i, r) + ...
+                alphas(r, m) * Target(m) * ...
+                exp(-Gamma*(norm(TrainSet(i, :) - TrainSet(m, :)).^2));            
+        end
+        Preds(i, r) = Preds(i, r) + biases(r);
     end
 end
 
@@ -69,7 +85,13 @@ disp(sprintf('\nTrain:\nErrorCount: \t%d\nError%%: \t%.2f%%\nCorrect%%: \t%.2f%%
 Preds = zeros(TestSize, Class);
 for i = 1 : TestSize
     for r = 1 : Class
-        Preds(i, r) = Ws(r, :) * TestSet(i, :)' + biases(r);
+        Target = -ones(1, TrainSize);
+        Target(TrainTarget==r) = 1;
+        for m = 1 : TrainSize
+            Preds(i, r) =  Preds(i, r) + ...
+                alphas(r, m) * Target(m) * ...
+                exp(-Gamma*(norm(TestSet(i, :) - TrainSet(m, :)).^2));            
+        end
     end
 end
 
@@ -80,13 +102,14 @@ disp(sprintf('\nTest:\nErrorCount: \t%d\nError%%: \t%.2f%%\nCorrect%%: \t%.2f%%'
 
 
 %% Draw decision boundary
-
+if DrawTestingData || DrawSupportVector
+    
 % Set plot range
 xrange = [4 8];
 yrange = [2 5];
 
 % Step size
-inc = 0.01;
+inc = 0.05;
 
 % Get many x and ys
 [x, y] = meshgrid(xrange(1):inc:xrange(2), yrange(1):inc:yrange(2));
@@ -100,10 +123,19 @@ y = reshape(y, length, 1);
 values = [x y];
 
 % Get their label
+Phi = [values(:, 1).^2 ...
+        sqrt(2)*values(:, 1).*values(:, 2)...
+        values(:, 2).^2];
 Preds = zeros(length, Class);
 for i = 1 : size(values, 1)
     for r = 1 : Class
-        Preds(i, r) = Ws(r, :) * values(i, :)' + biases(r);
+        Target = -ones(1, TrainSize);
+        Target(TrainTarget==r) = 1;        
+        for m = 1 : TrainSize
+            Preds(i, r) =  Preds(i, r) + ...
+                alphas(r, m) * Target(m) * ...
+                exp(-Gamma*(norm(values(i, :) - TrainSet(m, :)).^2));            
+        end
     end
 end
 [val ind] = max(Preds');
@@ -118,27 +150,43 @@ set(gca,'ydir','normal'); % matlab weird
 cmap = [1 0.8 0.8; 0.95 1 0.95; 0.9 0.9 1];
 colormap(cmap);
 
-%% Draw training set
-% symbols = ['*' '+' 'x'];
-% colors = hsv(Class);
-% for i = 1 : Class
-%     scatter(TrainSet(TrainTarget==i, 1), ...
-%         TrainSet(TrainTarget==i, 2), 36, colors(i, :), symbols(i));
-%     hold on;
-% end
+end
 
-%% Draw testing set
+%% Draw training set and support vectors
+if DrawSupportVector
+    
 symbols = ['*' '+' 'x'];
 colors = hsv(Class);
+
+% Draw trainig sample
+for i = 1 : Class
+    scatter(TrainSet(TrainTarget==i, 1), ...
+        TrainSet(TrainTarget==i, 2), 36, colors(i, :), symbols(i));
+    hold on;
+end
+% Draw support vector
+for i = 1 : Class
+    scatter(SupportVectors{i}(:, 1), ...
+        SupportVectors{i}(:, 2), 50, [0 0 0], 'o');
+end
+
+end
+
+
+
+
+%% Draw testing set
+if DrawTestingData
+    
+symbols = ['*' '+' 'x'];
+colors = hsv(Class);
+
+% Draw testing sample
 for i = 1 : Class
     scatter(TestSet(TestTarget==i, 1), ...
         TestSet(TestTarget==i, 2), 36, colors(i, :), symbols(i));
     hold on;
 end
 
-%% Draw support vectors
-% for i = 1 : Class
-%     scatter(SupportVectors{i}(:, 1), ...
-%         SupportVectors{i}(:, 2), 50, [0 0 0], 'o');
-% end
+end
 

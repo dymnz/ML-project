@@ -1,0 +1,65 @@
+--Linear
+Train:
+ErrorCount: 	26
+Error%: 	21.67%
+Correct%: 	78.33%
+
+Test:
+ErrorCount: 	5
+Error%: 	16.67%
+Correct%: 	83.33%
+
+--Poly
+Train:
+ErrorCount: 	30
+Error%: 	25.00%
+Correct%: 	75.00%
+
+Test:
+ErrorCount: 	4
+Error%: 	13.33%
+Correct%: 	86.67%
+
+--RBF sgima1:
+Train:
+ErrorCount: 	24
+Error%: 	20.00%
+Correct%: 	80.00%
+
+Test:
+ErrorCount: 	5
+Error%: 	16.67%
+Correct%: 	83.33%
+
+--RBF sgima0.5:
+Train:
+ErrorCount: 	24
+Error%: 	20.00%
+Correct%: 	80.00%
+
+Test:
+ErrorCount: 	5
+Error%: 	16.67%
+Correct%: 	83.33%
+
+--RBF sgima0.1:
+Train:
+ErrorCount: 	17
+Error%: 	14.17%
+Correct%: 	85.83%
+
+Test:
+ErrorCount: 	10
+Error%: 	33.33%
+Correct%: 	66.67%
+
+--RBF sgima0.05:
+Train:
+ErrorCount: 	13
+Error%: 	10.83%
+Correct%: 	89.17%
+
+Test:
+ErrorCount: 	10
+Error%: 	33.33%
+Correct%: 	66.67%
